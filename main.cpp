@@ -9,18 +9,33 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+
+/////////////////////////////////////////////////////////////////
+struct Library
+{
+	int m_numBooks = 0;
+	int m_daysToSignUp = 0;
+	int m_booksPerDay = 0;
+	std::vector<int> m_bookIDs;
+};
+
 
 /////////////////////////////////////////////////////////////////
 struct InputData
 {
-	
+	int m_totalBooks = 0;
+	int m_numLibraries = 0;
+	int m_numDays = 0;
+	std::vector<int> m_bookScores;
+	std::vector<Library> m_libraries;
 };
 
 
 /////////////////////////////////////////////////////////////////
 struct OutputData
 {
-	
+	int m_numLibsSignedUp = 0;
 };
 
 
@@ -32,7 +47,9 @@ void writeToFile(OutputData t_outputData, const std::string t_name);
 
 int main()
 {
-
+	InputData inputData = getInputData("a_example");
+	system("pause");
+	return EXIT_SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////
@@ -43,7 +60,7 @@ const InputData getInputData(const std::string t_string)
 	std::ifstream inputFile;
 
 	// Read from file
-	inputFile.open("data/" + t_string + ".in");
+	inputFile.open("data/" + t_string + ".txt");
 
 	if (inputFile.is_open())
 	{
@@ -52,25 +69,64 @@ const InputData getInputData(const std::string t_string)
 		// Get the first line
 		if (std::getline(inputFile, line))
 		{
-			//std::stringstream lineOne(line);
-			//std::string item;
+			std::stringstream lineOne(line);
+			std::string item;
 
-			//// Maximum slices
-			//std::getline(lineOne, item, ' ');
-			//inputData.m_maximumSlices = std::stoi(item);
+			// Total books
+			std::getline(lineOne, item, ' ');
+			inputData.m_totalBooks = std::stoi(item);
 
-			//// Number of pizzas
-			//std::getline(lineOne, item, ' ');
-			//inputData.m_numPizzas = std::stoi(item);
+			// Total Libraries
+			std::getline(lineOne, item, ' ');
+			inputData.m_numLibraries = std::stoi(item);
 
-			//// Loop through each piece of data
-			//std::getline(inputFile, line);
-			//std::stringstream lineTwo(line);
+			// Total books
+			std::getline(lineOne, item, ' ');
+			inputData.m_numDays = std::stoi(item);
 
-			//while (std::getline(lineTwo, item, ' '))
-			//{
-			//	inputData.m_slicesPerPizza.push_back(std::stoi(item));
-			//}
+			// Get next line
+			std::getline(inputFile, line);
+			std::stringstream lineTwo(line);
+
+			// Loop through all books
+			while (std::getline(lineTwo, item, ' '))
+			{
+				inputData.m_bookScores.push_back(std::stoi(item));
+			}
+
+			// Loop through all libraries
+			int index = 1; // Start from 1 because of use of %
+			Library library;
+			while (std::getline(inputFile, line))
+			{
+				std::stringstream lineStream(line);
+
+				if (index % 2 == 1) // Even (Library information)
+				{
+					std::getline(lineStream, item, ' ');
+					library.m_numBooks = std::stoi(item);
+
+					std::getline(lineStream, item, ' ');
+					library.m_daysToSignUp = std::stoi(item);
+
+					std::getline(lineStream, item, ' ');
+					library.m_booksPerDay = std::stoi(item);
+				}
+				else // Odd (Library book indices)
+				{
+					library.m_bookIDs.clear();
+
+					// Loop book indices
+					while (std::getline(lineStream, item, ' '))
+					{
+						library.m_bookIDs.push_back(std::stoi(item));
+					}
+
+					inputData.m_libraries.push_back(library);
+				}
+
+				index++;
+			}
 		}
 
 		inputFile.close();
@@ -122,6 +178,8 @@ void writeToFile(OutputData t_outputData, const std::string t_name)
 				outputFile << " ";
 			}
 		}*/
+
+		outputFile.close();
 	}
 }
 
