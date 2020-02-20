@@ -10,8 +10,12 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <set>
 
 #include <algorithm>
+
+const std::string fileNames[]{ "a_example","b_read_on","c_incunabula","d_tough_choices","e_so_many_books","f_libraries_of_the_world"};
+int score = 0;
 
 /////////////////////////////////////////////////////////////////
 struct Library
@@ -62,21 +66,18 @@ std::vector<int> getShortestSetup(std::vector<Library>& t_libraries);
 
 int main()
 {
-	std::string fileName = "a_example";
-	InputData inputData = getInputData(fileName);
-
-	OutputData outputData = getSolutionData1(inputData);
-
-	writeToFile(outputData, fileName);
-
-	// Sort libraries by shortest setup time
-	std::vector<int> libPriorities{ getShortestSetup(inputData.m_libraries) };
-
-	// Sort their books by highest value
-	for (int i : libPriorities)
+	for (int i = 0; i < 6; i++)
 	{
-		std::vector<int> mostValuableBooks = getHighestFirst(inputData.m_libraries.at(i), inputData.m_bookScores);
+		std::string fileName{ fileNames[i] };
+
+		InputData inputData = getInputData(fileName);
+
+		OutputData outputData = getSolutionData1(inputData);
+
+		writeToFile(outputData, fileName);
 	}
+
+	std::cout << std::endl << score << std::endl;
 
 	system("pause");
 	return EXIT_SUCCESS;
@@ -129,6 +130,11 @@ const InputData getInputData(const std::string t_string)
 			Library library;
 			while (std::getline(inputFile, line))
 			{
+				if (line == "")
+				{
+					break;
+				}
+
 				std::stringstream lineStream(line);
 
 				if (index % 2 == 1) // Even (Library information)
@@ -190,29 +196,69 @@ OutputData getSolutionData(const InputData t_inputData)
 /////////////////////////////////////////////////////////////////
 OutputData getSolutionData1(const InputData t_inputData)
 {
+	InputData inputData = t_inputData;
 	OutputData outputData;
-	outputData.m_numLibsSignedUp = 2;
 
-	OutputLibrary lib;
-	lib.m_libIndex = 1;
-	lib.m_booksSent = 3;
-	lib.m_sentBookIndices.push_back(5);
-	lib.m_sentBookIndices.push_back(2);
-	lib.m_sentBookIndices.push_back(3);
+	std::set<int> usedBookIndices;
 
-	outputData.m_libraries.push_back(lib);
+	// Sort libraries by shortest setup time
+	std::vector<int> libPriorities{ getShortestSetup(inputData.m_libraries) };
 
-	lib.m_sentBookIndices.clear();
+	int daysUsed = 0;
+	for (int libIndex : libPriorities)
+	{
+		if (daysUsed + inputData.m_libraries.at(libIndex).m_daysToSignUp < inputData.m_numDays)
+		{
+			daysUsed += inputData.m_libraries.at(libIndex).m_daysToSignUp;
 
-	lib.m_libIndex = 0;
-	lib.m_booksSent = 5;
-	lib.m_sentBookIndices.push_back(0);
-	lib.m_sentBookIndices.push_back(1);
-	lib.m_sentBookIndices.push_back(2);
-	lib.m_sentBookIndices.push_back(3);
-	lib.m_sentBookIndices.push_back(4);
+			outputData.m_numLibsSignedUp++;
 
-	outputData.m_libraries.push_back(lib);
+			OutputLibrary lib;
+			lib.m_libIndex = libIndex;
+
+			// Sort their books by highest value
+			std::vector<int> mostValuableBooks = getHighestFirst(inputData.m_libraries.at(libIndex), inputData.m_bookScores);
+
+			int bookIndex = 0;
+			for (int day = daysUsed; day < inputData.m_numDays; day++)
+			{
+				// While we're looking at a book already sent, skip to the next book
+				while (bookIndex < mostValuableBooks.size()
+					&& usedBookIndices.count(mostValuableBooks.at(bookIndex)) != 0)
+				{
+					bookIndex++;
+				}
+
+				if (bookIndex < mostValuableBooks.size())
+				{
+					lib.m_sentBookIndices.push_back(mostValuableBooks.at(bookIndex));
+					usedBookIndices.insert(mostValuableBooks.at(bookIndex));
+					bookIndex++;
+				}
+
+			}
+	
+			lib.m_booksSent = lib.m_sentBookIndices.size();
+
+			if (lib.m_booksSent == 0)
+			{
+				daysUsed -= inputData.m_libraries.at(libIndex).m_daysToSignUp;
+			}
+			else
+			{
+				outputData.m_libraries.push_back(lib);
+			}
+		}
+	}
+
+	int sum = 0;
+	for (int i : usedBookIndices)
+	{
+		sum += inputData.m_bookScores.at(i);
+	}
+
+	std::cout << sum << std::endl;
+	score += sum;
 
 	return outputData;
 }
@@ -291,6 +337,8 @@ std::vector<int> getShortestSetup(std::vector<Library>& t_libraries)
 	for (int i = 0; i < t_libraries.size(); i++)
 	{
 		std::pair<int, int> p{ t_libraries.at(i).m_daysToSignUp, i };
+
+		times.push_back(p);
 	}
 
 	std::sort(times.begin(), times.end());
