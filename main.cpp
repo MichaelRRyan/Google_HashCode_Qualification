@@ -64,33 +64,11 @@ int main()
 	std::string fileName = "a_example";
 	InputData inputData = getInputData(fileName);
 
-	getHighestFirst(inputData.m_libraries.at(0), inputData.m_bookScores);
-
-	OutputData outputData;
-	outputData.m_numLibsSignedUp = 2;
-
-	OutputLibrary lib;
-	lib.m_libIndex = 1;
-	lib.m_booksSent = 3;
-	lib.m_sentBookIndices.push_back(5);
-	lib.m_sentBookIndices.push_back(2);
-	lib.m_sentBookIndices.push_back(3);
-
-	outputData.m_libraries.push_back(lib);
-
-	lib.m_sentBookIndices.clear();
-
-	lib.m_libIndex = 0;
-	lib.m_booksSent = 5;
-	lib.m_sentBookIndices.push_back(0);
-	lib.m_sentBookIndices.push_back(1);
-	lib.m_sentBookIndices.push_back(2);
-	lib.m_sentBookIndices.push_back(3);
-	lib.m_sentBookIndices.push_back(4);
-
-	outputData.m_libraries.push_back(lib);
+	OutputData outputData = getSolutionData1(inputData);
 
 	writeToFile(outputData, fileName);
+
+	getHighestFirst(inputData.m_libraries.at(0), inputData.m_bookScores);
 
 	system("pause");
 	return EXIT_SUCCESS;
@@ -204,7 +182,31 @@ OutputData getSolutionData(const InputData t_inputData)
 /////////////////////////////////////////////////////////////////
 OutputData getSolutionData1(const InputData t_inputData)
 {
-	return OutputData();
+	OutputData outputData;
+	outputData.m_numLibsSignedUp = 2;
+
+	OutputLibrary lib;
+	lib.m_libIndex = 1;
+	lib.m_booksSent = 3;
+	lib.m_sentBookIndices.push_back(5);
+	lib.m_sentBookIndices.push_back(2);
+	lib.m_sentBookIndices.push_back(3);
+
+	outputData.m_libraries.push_back(lib);
+
+	lib.m_sentBookIndices.clear();
+
+	lib.m_libIndex = 0;
+	lib.m_booksSent = 5;
+	lib.m_sentBookIndices.push_back(0);
+	lib.m_sentBookIndices.push_back(1);
+	lib.m_sentBookIndices.push_back(2);
+	lib.m_sentBookIndices.push_back(3);
+	lib.m_sentBookIndices.push_back(4);
+
+	outputData.m_libraries.push_back(lib);
+
+	return outputData;
 }
 
 /////////////////////////////////////////////////////////////////
