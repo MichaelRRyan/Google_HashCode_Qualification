@@ -220,22 +220,28 @@ OutputData getSolutionData1(const InputData t_inputData)
 			std::vector<int> mostValuableBooks = getHighestFirst(inputData.m_libraries.at(libIndex), inputData.m_bookScores);
 
 			int bookIndex = 0;
-			for (int day = daysUsed; day < inputData.m_numDays; day++)
+			int day = daysUsed;
+			while (day < inputData.m_numDays)
 			{
-				// While we're looking at a book already sent, skip to the next book
-				while (bookIndex < mostValuableBooks.size()
-					&& usedBookIndices.count(mostValuableBooks.at(bookIndex)) != 0)
+				for (int i = 0; i < inputData.m_libraries.at(libIndex).m_booksPerDay; i++)
 				{
-					bookIndex++;
+					// While we're looking at a book already sent, skip to the next book
+					while (bookIndex < mostValuableBooks.size()
+						&& usedBookIndices.count(mostValuableBooks.at(bookIndex)) != 0)
+					{
+						bookIndex++;
+					}
+
+					// Add books
+					if (bookIndex < mostValuableBooks.size())
+					{
+						lib.m_sentBookIndices.push_back(mostValuableBooks.at(bookIndex));
+						usedBookIndices.insert(mostValuableBooks.at(bookIndex));
+						bookIndex++;
+					}
 				}
 
-				if (bookIndex < mostValuableBooks.size())
-				{
-					lib.m_sentBookIndices.push_back(mostValuableBooks.at(bookIndex));
-					usedBookIndices.insert(mostValuableBooks.at(bookIndex));
-					bookIndex++;
-				}
-
+				day++;
 			}
 	
 			lib.m_booksSent = lib.m_sentBookIndices.size();
@@ -243,6 +249,7 @@ OutputData getSolutionData1(const InputData t_inputData)
 			if (lib.m_booksSent == 0)
 			{
 				daysUsed -= inputData.m_libraries.at(libIndex).m_daysToSignUp;
+				outputData.m_numLibsSignedUp--;
 			}
 			else
 			{
