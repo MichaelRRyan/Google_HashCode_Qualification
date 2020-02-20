@@ -33,9 +33,18 @@ struct InputData
 
 
 /////////////////////////////////////////////////////////////////
+struct OutputLibrary
+{
+	int m_libIndex = 0;
+	int m_booksSent = 0;
+	std::vector<int> m_sentBookIndices;
+};
+
+/////////////////////////////////////////////////////////////////
 struct OutputData
 {
 	int m_numLibsSignedUp = 0;
+	std::vector<OutputLibrary> m_libraries;
 };
 
 
@@ -43,11 +52,40 @@ struct OutputData
 
 const InputData getInputData(const std::string t_name);
 OutputData getSolutionData(const InputData t_inputData);
+OutputData getSolutionData1(const InputData t_inputData);
 void writeToFile(OutputData t_outputData, const std::string t_name);
 
 int main()
 {
-	InputData inputData = getInputData("a_example");
+	std::string fileName = "a_example";
+	InputData inputData = getInputData(fileName);
+
+	OutputData outputData;
+	outputData.m_numLibsSignedUp = 2;
+
+	OutputLibrary lib;
+	lib.m_libIndex = 1;
+	lib.m_booksSent = 3;
+	lib.m_sentBookIndices.push_back(5);
+	lib.m_sentBookIndices.push_back(2);
+	lib.m_sentBookIndices.push_back(3);
+
+	outputData.m_libraries.push_back(lib);
+
+	lib.m_sentBookIndices.clear();
+
+	lib.m_libIndex = 0;
+	lib.m_booksSent = 5;
+	lib.m_sentBookIndices.push_back(0);
+	lib.m_sentBookIndices.push_back(1);
+	lib.m_sentBookIndices.push_back(2);
+	lib.m_sentBookIndices.push_back(3);
+	lib.m_sentBookIndices.push_back(4);
+
+	outputData.m_libraries.push_back(lib);
+
+	writeToFile(outputData, fileName);
+
 	system("pause");
 	return EXIT_SUCCESS;
 }
@@ -158,26 +196,47 @@ OutputData getSolutionData(const InputData t_inputData)
 }
 
 /////////////////////////////////////////////////////////////////
+OutputData getSolutionData1(const InputData t_inputData)
+{
+	return OutputData();
+}
+
+/////////////////////////////////////////////////////////////////
 void writeToFile(OutputData t_outputData, const std::string t_name)
 {
 	std::ofstream outputFile;
 
-	outputFile.open("data/" + t_name + ".out");
+	outputFile.open("data/" + t_name + "_solution.txt");
 
 	if (outputFile.is_open())
 	{
-		/*outputFile << t_outputData.m_pizzaIndices.size() << "\n";
+		outputFile << t_outputData.m_numLibsSignedUp << "\n";
 
-		while (!t_outputData.m_pizzaIndices.empty())
+		int iteration = 0;
+		for (OutputLibrary const& lib : t_outputData.m_libraries)
 		{
-			outputFile << t_outputData.m_pizzaIndices.top();
-			t_outputData.m_pizzaIndices.pop();
+			outputFile << lib.m_libIndex << " ";
+			outputFile << lib.m_booksSent << "\n";
 
-			if (!t_outputData.m_pizzaIndices.empty())
+			for (int bookIndex = 0; bookIndex < lib.m_sentBookIndices.size(); bookIndex++)
 			{
-				outputFile << " ";
+				outputFile << lib.m_sentBookIndices.at(bookIndex);
+
+				// only add a space if another piece of data follows
+				if (bookIndex != lib.m_sentBookIndices.size() - 1)
+				{
+					outputFile << " ";
+				}
 			}
-		}*/
+
+			// only add a line break if another piece of data follows
+			if (iteration != t_outputData.m_libraries.size() - 1)
+			{
+				outputFile << "\n";
+			}
+
+			iteration++;
+		}
 
 		outputFile.close();
 	}
