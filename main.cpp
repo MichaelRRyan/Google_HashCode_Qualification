@@ -11,6 +11,8 @@
 #include <sstream>
 #include <vector>
 
+#include <algorithm>
+
 /////////////////////////////////////////////////////////////////
 struct Library
 {
@@ -45,9 +47,14 @@ const InputData getInputData(const std::string t_name);
 OutputData getSolutionData(const InputData t_inputData);
 void writeToFile(OutputData t_outputData, const std::string t_name);
 
+std::vector<int> getHighestFirst(Library& t_lib, std::vector<int>& t_bookScores);
+
 int main()
 {
 	InputData inputData = getInputData("a_example");
+
+	getHighestFirst(inputData.m_libraries.at(0), inputData.m_bookScores);
+
 	system("pause");
 	return EXIT_SUCCESS;
 }
@@ -181,6 +188,30 @@ void writeToFile(OutputData t_outputData, const std::string t_name)
 
 		outputFile.close();
 	}
+}
+
+/////////////////////////////////////////////////////////////////
+
+std::vector<int> getHighestFirst(Library& t_lib, std::vector<int>& t_bookScores)
+{
+	std::vector<std::pair<int, int>> values;
+
+	for (int i : t_lib.m_bookIDs)
+	{
+		std::pair<int, int> p{ t_bookScores.at(i), i };
+		values.push_back(p);
+	}
+
+	std::sort(values.begin(), values.end(), std::greater<>());
+
+	std::vector<int> priority;
+
+	for (std::pair<int,int> i : values)
+	{
+		priority.push_back(i.second);
+	}
+
+	return priority;
 }
 
 /////////////////////////////////////////////////////////////////
