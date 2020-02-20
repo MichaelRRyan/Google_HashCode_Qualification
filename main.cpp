@@ -58,6 +58,7 @@ OutputData getSolutionData1(const InputData t_inputData);
 void writeToFile(OutputData t_outputData, const std::string t_name);
 
 std::vector<int> getHighestFirst(Library& t_lib, std::vector<int>& t_bookScores);
+std::vector<int> getShortestSetup(std::vector<Library>& t_libraries);
 
 int main()
 {
@@ -68,7 +69,14 @@ int main()
 
 	writeToFile(outputData, fileName);
 
-	getHighestFirst(inputData.m_libraries.at(0), inputData.m_bookScores);
+	// Sort libraries by shortest setup time
+	std::vector<int> libPriorities{ getShortestSetup(inputData.m_libraries) };
+
+	// Sort their books by highest value
+	for (int i : libPriorities)
+	{
+		std::vector<int> mostValuableBooks = getHighestFirst(inputData.m_libraries.at(i), inputData.m_bookScores);
+	}
 
 	system("pause");
 	return EXIT_SUCCESS;
@@ -267,6 +275,29 @@ std::vector<int> getHighestFirst(Library& t_lib, std::vector<int>& t_bookScores)
 	std::vector<int> priority;
 
 	for (std::pair<int,int> i : values)
+	{
+		priority.push_back(i.second);
+	}
+
+	return priority;
+}
+
+/////////////////////////////////////////////////////////////////
+
+std::vector<int> getShortestSetup(std::vector<Library>& t_libraries)
+{
+	std::vector<std::pair<int, int>> times;
+
+	for (int i = 0; i < t_libraries.size(); i++)
+	{
+		std::pair<int, int> p{ t_libraries.at(i).m_daysToSignUp, i };
+	}
+
+	std::sort(times.begin(), times.end());
+
+	std::vector<int> priority;
+
+	for (std::pair<int, int> i : times)
 	{
 		priority.push_back(i.second);
 	}
