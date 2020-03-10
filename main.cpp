@@ -223,7 +223,7 @@ OutputData getSolutionData1(const InputData t_inputData)
 			int day = daysUsed;
 			while (day < inputData.m_numDays)
 			{
-				for (int i = 0; i < inputData.m_libraries.at(libIndex).m_booksPerDay; i++)
+				for (int i = 0; i < inputData.m_libraries.at(libIndex).m_booksPerDay && i < 100; i++)
 				{
 					// While we're looking at a book already sent, skip to the next book
 					while (bookIndex < mostValuableBooks.size()
